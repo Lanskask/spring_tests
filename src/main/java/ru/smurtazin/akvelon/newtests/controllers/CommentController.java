@@ -1,11 +1,13 @@
 package ru.smurtazin.akvelon.newtests.controllers;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ru.smurtazin.akvelon.newtests.exceptions.ItemNotFoundException;
 import ru.smurtazin.akvelon.newtests.models.Comment;
 import ru.smurtazin.akvelon.newtests.repositories.CommentRepository;
 
 @RestController
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 public class CommentController {
     private final CommentRepository commentRepo;
 

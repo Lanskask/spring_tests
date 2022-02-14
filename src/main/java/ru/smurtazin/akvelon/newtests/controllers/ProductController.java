@@ -38,7 +38,7 @@ public class ProductController {
                     foundItem.setDescription(newItem.getDescription());
 //                    foundItem.setCharacteristics(newItem.getCharacteristics());
                     foundItem.setRating(newItem.getRating());
-                    foundItem.setComments(newItem.getComments());
+//                    foundItem.setComments(newItem.getComments());
                     return repo.save(foundItem);
                 })
                 .orElseGet(() -> {
