@@ -26,7 +26,7 @@ public class ProductController {
     @GetMapping("/products/{id}")
     Product getProductById(@PathVariable Long id) {
         return repo.findById(id).orElseThrow(
-                () -> new ItemNotFoundException(id)
+                () -> new ItemNotFoundException("product", id)
         );
     }
 

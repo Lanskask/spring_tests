@@ -28,7 +28,7 @@ public class CommentController {
     @GetMapping("/comments/{id}")
     Comment getCommentById(@PathVariable Long id) {
         return commentRepo.findById(id).orElseThrow(
-                () -> new ItemNotFoundException(id)
+                () -> new ItemNotFoundException("comment", id)
         );
     }
 
