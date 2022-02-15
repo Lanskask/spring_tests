@@ -2,44 +2,49 @@ package ru.smurtazin.akvelon.newtests.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.MockMvcWebTestClient;
 import ru.smurtazin.akvelon.newtests.models.Comment;
 import ru.smurtazin.akvelon.newtests.repositories.CommentRepository;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.lenient;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(CommentController.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-class CommentControllerMvcTest {
+@AutoConfigureWebTestClient
+class CommentControllerMvcWRepoTest {
 
     List<Comment> comments;
 
     @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
     ObjectMapper objectMapper;
 
-    @MockBean
+    @Autowired
+    WebTestClient webTestClient;
+
+//    @LocalServerPort
+//    private Integer port;
+
+//    @Autowired
+//    private MockMvc mvc;
+
+    @Autowired
     CommentRepository repo;
+
+    @Autowired
+    CommentController controller;
 
     @BeforeEach
     void setUp() {
@@ -65,6 +70,7 @@ class CommentControllerMvcTest {
                 .build();
 
         this.comments = List.of(commChromebook1, commChromebook2, commMacbook1, commMacbook2);
+        repo.saveAll(this.comments);
     }
 
     @AfterEach
@@ -74,36 +80,21 @@ class CommentControllerMvcTest {
 
     @Test
     void allComments() throws Exception {
-        lenient().when(repo.findAll()).thenReturn(this.comments);
+        var resBodyContentSpec = webTestClient
+                .get().uri("/comments")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody();
 
-        mockMvc.perform(
-                MockMvcRequestBuilders
-                        .get("/comments")
-                        .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(4)))
-                .andExpect(jsonPath("$[0].text", is("This Chromebook is worse than ever")))
-                .andExpect(jsonPath("$[0].product_id", is(1)))
-                .andExpect(jsonPath("$[1].text", is("Could be worse")))
-                .andExpect(jsonPath("$[1].product_id", is(1)))
+        resBodyContentSpec
+                .jsonPath("$[0].text").isEqualTo("This Chromebook is worse than ever")
+                .jsonPath("$[0].product_id").isEqualTo(1)
+                .jsonPath("$[1].text").isEqualTo("Could be worse")
+                .jsonPath("$[1].product_id").isEqualTo(1)
         ;
-   }
-
-    @Test
-    void newComment() {
 
     }
 
-    @Test
-    void getCommentById() {
-
-    }
-
-    @Test
-    void replaceComment() {
-    }
-
-    @Test
-    void deleteComment() {
-    }
 }
