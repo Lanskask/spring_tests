@@ -17,8 +17,7 @@ public class CommentController {
 
     @GetMapping("/comments")
     Iterable<Comment> allComments() {
-        var res = commentRepo.findAll();
-        return res;
+        return commentRepo.findAll();
     }
 
     @PostMapping("/comments")
